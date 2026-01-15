@@ -1,0 +1,19 @@
+/* Roadmap page styles */
+
+#roadmaps{display:grid; gap:1rem}
+@media(min-width:800px){
+  #roadmaps{grid-template-columns:repeat(3,1fr)}
+}
+
+.roadmap-card{display:flex;flex-direction:column;gap:0.6rem}
+.roadmap-card h3{margin:0}
+.roadmap-topics{display:flex;flex-wrap:wrap;gap:0.4rem}
+.roadmap-topics .tag{background:transparent;border:1px solid var(--green-100);padding:0.2rem 0.45rem}
+
+.progress-row{display:flex;align-items:center;gap:0.75rem}
+.progress-meta{width:55px;text-align:right;font-size:0.9rem;color:var(--muted)}
+.progress-bar{flex:1;background:var(--green-100);border-radius:999px;overflow:hidden;height:14px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green-500),var(--green-700));width:0%;transition:width 600ms cubic-bezier(.22,.9,.27,1)}
+
+.card-controls{display:flex;gap:0.5rem}
+.card-controls .btn{padding:0.4rem 0.6rem;font-size:0.9rem}

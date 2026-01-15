@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crazy Code Arena — Skill Garden</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/arena.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="brand">Skill Garden</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Dashboard</a>
+        <a href="team.html">Team Finder</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="arena.html">Arena</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card banner">
+      <h1>Crazy Code Arena</h1>
+      <p class="lead">Take daily coding challenges: Speed Run, Bug Hunt, and more. Beat the clock and earn XP.</p>
+    </section>
+
+    <section class="card">
+      <div class="arena-controls">
+        <div class="types" role="tablist" aria-label="Challenge types">
+          <button class="type" data-type="Speed Run" aria-selected="true">Speed Run</button>
+          <button class="type" data-type="Bug Hunt" aria-selected="false">Bug Hunt</button>
+        </div>
+        <div id="arena-challenge" class="challenge-area"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> Skill Garden</div>
+  </footer>
+
+  <script src="js/config.js" defer></script>
+  <script src="js/arena.js" defer></script>
+</body>
+</html>

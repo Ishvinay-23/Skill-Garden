@@ -1,0 +1,9 @@
+/* Team Finder page styles */
+
+.tabs{display:flex;gap:0.5rem}
+.tab{padding:0.5rem 0.75rem;border-radius:10px;border:1px solid transparent;background:transparent;cursor:pointer}
+.tab[aria-selected='true']{background:var(--green-500);color:#fff}
+
+#tab-content .card{display:flex;justify-content:space-between;align-items:center}
+#tab-content .card .card-body{flex:1}
+#tab-content .tag{margin-right:0.5rem}

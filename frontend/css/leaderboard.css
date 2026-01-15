@@ -1,0 +1,21 @@
+/* Leaderboard styles (mobile-first) */
+
+.leaderboard-controls{display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem}
+
+.leaderboard-list{display:flex;flex-direction:column;gap:0.6rem}
+.leader-item{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.6rem;border-radius:10px;border:1px solid rgba(61,178,75,0.08);transition:transform var(--transition), box-shadow var(--transition);}
+.leader-item:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(20,40,20,0.06)}
+
+.leader-rank{font-weight:700;color:var(--green-700);font-size:1.05rem;width:48px;text-align:center}
+.leader-meta{display:flex;flex-direction:column}
+.leader-name{font-weight:600}
+.leader-team{font-size:0.9rem;color:var(--muted)}
+.leader-xp{font-weight:700;color:var(--green-500)}
+
+/* Table layout on larger screens */
+@media(min-width:800px){
+  .leaderboard-list{display:block}
+  .leader-table{width:100%;border-collapse:collapse}
+  .leader-table th, .leader-table td{padding:0.75rem;text-align:left;border-bottom:1px solid rgba(0,0,0,0.04)}
+  .leader-table th{font-weight:700;color:var(--muted)}
+}

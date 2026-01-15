@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Finder — Skill Garden</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/team.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="brand">Skill Garden</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Dashboard</a>
+        <a href="team.html">Team Finder</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="arena.html">Arena</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card banner">
+      <h1>Find or Join a Team</h1>
+      <p class="lead">Browse teams, filter by needs, and request to join teams that match your skills.</p>
+    </section>
+
+    <section class="card">
+      <div class="tabs" role="tablist" aria-label="Team finder tabs">
+        <button role="tab" aria-selected="true" class="tab" data-tab="need">Need Members</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="join">Join Team</button>
+      </div>
+
+      <div id="tab-content" class="list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> Skill Garden</div>
+  </footer>
+
+  <script src="js/config.js" defer></script>
+  <script src="js/team.js" defer></script>
+</body>
+</html>

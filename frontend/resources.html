@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resources — Skill Garden</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/resources.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="brand">Skill Garden</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Dashboard</a>
+        <a href="team.html">Team Finder</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="arena.html">Arena</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card banner">
+      <h1>Resource Board</h1>
+      <p class="lead">Curated notes, books, and equipment suggestions to help your learning and your team.</p>
+    </section>
+
+    <section class="card">
+      <div class="tabs" role="tablist" aria-label="Resources tabs">
+        <button role="tab" aria-selected="true" class="tab" data-tab="notes">Notes</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="books">Books</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="equipment">Equipment</button>
+      </div>
+
+      <div id="resources-list" class="resources-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> Skill Garden</div>
+  </footer>
+
+  <script src="js/config.js" defer></script>
+  <script src="js/resources.js" defer></script>
+</body>
+</html>

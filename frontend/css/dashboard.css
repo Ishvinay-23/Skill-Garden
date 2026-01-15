@@ -1,0 +1,14 @@
+/* Dashboard specific styles */
+
+#xp-card .tag{font-size:0.95rem; margin-bottom:0.5rem}
+#xp-card .meta{margin:0.5rem 0}
+
+#daily-challenge .card-body{display:flex;flex-direction:column;gap:0.6rem}
+#daily-challenge h3{margin-top:0}
+
+#teams-list .card{display:flex;justify-content:space-between;align-items:center;gap:0.8rem}
+#teams-list .card .card-body{flex:1}
+#teams-list .card .card-footer{margin-left:1rem}
+
+/* Toast tweaks */
+#simple-toast{transition:opacity 250ms ease; opacity:0; padding:0.75rem 1rem; border-radius:10px}

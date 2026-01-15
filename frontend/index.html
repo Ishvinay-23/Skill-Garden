@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Garden — Grow Your Team. Grow Yourself.</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Page-specific stylesheet (created next) -->
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="brand">Skill Garden</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Dashboard</a>
+        <a href="team.html">Team Finder</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="arena.html">Arena</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Welcome banner -->
+    <section id="welcome-banner" class="card banner" aria-labelledby="welcome-title">
+      <h1 id="welcome-title">Skill Garden — Grow Your Team. Grow Yourself.</h1>
+      <p class="lead">Small daily steps, big team growth. Explore challenges, join teams, and track your progress.</p>
+    </section>
+
+    <section class="grid two-up">
+      <!-- XP / Level Card -->
+      <aside id="xp-card" class="card" aria-labelledby="xp-title">
+        <h2 id="xp-title">Your Progress</h2>
+        <!-- content rendered by JS -->
+      </aside>
+
+      <!-- Daily Challenge Preview -->
+      <section id="daily-challenge" class="card" aria-labelledby="challenge-title">
+        <h2 id="challenge-title">Daily Challenge</h2>
+        <!-- content rendered by JS -->
+      </section>
+    </section>
+
+    <!-- Recommended Teams -->
+    <section id="recommended-teams" class="card" aria-labelledby="teams-title">
+      <h2 id="teams-title">Recommended Teams</h2>
+      <div id="teams-list" class="list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> Skill Garden</div>
+  </footer>
+
+  <script src="js/config.js" defer></script>
+  <script src="js/dashboard.js" defer></script>
+</body>
+</html>

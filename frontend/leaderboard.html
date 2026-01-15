@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaderboard — Skill Garden</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/leaderboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="brand">Skill Garden</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Dashboard</a>
+        <a href="team.html">Team Finder</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="arena.html">Arena</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="resources.html">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card banner">
+      <h1>Weekly Leaderboard</h1>
+      <p class="lead">See who’s leading the garden this week. Sort by XP to discover top contributors.</p>
+    </section>
+
+    <section class="card">
+      <div class="leaderboard-controls">
+        <label for="sort-select" class="meta">Sort by:</label>
+        <select id="sort-select" aria-label="Sort leaderboard">
+          <option value="xp_desc">XP (high → low)</option>
+          <option value="xp_asc">XP (low → high)</option>
+          <option value="name_asc">Name (A → Z)</option>
+        </select>
+      </div>
+
+      <div id="leaderboard-container" class="leaderboard-list" aria-live="polite">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© <span id="year"></span> Skill Garden</div>
+  </footer>
+
+  <script src="js/config.js" defer></script>
+  <script src="js/leaderboard.js" defer></script>
+</body>
+</html>
