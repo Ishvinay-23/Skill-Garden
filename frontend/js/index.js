@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load and render user information on the dashboard
   renderUserInfo();
 
+  // Set up team creation form
+  setupTeamCreationForm();
+
   // Fetch and render teams on the dashboard
   fetchAndRenderTeams();
 
@@ -112,6 +115,231 @@ function escapeHtml(text) {
 }
 
 /**
+ * Retrieves the logged-in user's ID from localStorage
+ * @returns {string|null} - The user ID or null if not found
+ */
+function getUserId() {
+  try {
+    const userDataString = localStorage.getItem('user');
+    if (!userDataString) {
+      return null;
+    }
+    
+    const userData = JSON.parse(userDataString);
+    return userData._id || userData.id || null;
+  } catch (error) {
+    console.error('Error retrieving user ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Sets up the team creation form and its submit handler
+ * Creates a form dynamically and inserts it before the teams list
+ */
+function setupTeamCreationForm() {
+  // Get the teams section container
+  const teamsSection = document.getElementById('recommended-teams');
+  
+  if (!teamsSection) {
+    console.error('Teams section not found in DOM');
+    return;
+  }
+
+  // Check if form already exists to prevent duplicates
+  if (document.getElementById('create-team-form')) {
+    return;
+  }
+
+  // Create the form container
+  const formContainer = document.createElement('div');
+  formContainer.className = 'create-team-container';
+  formContainer.style.marginBottom = '1.5rem';
+
+  // Create the form
+  const form = document.createElement('form');
+  form.id = 'create-team-form';
+  form.className = 'create-team-form';
+
+  // Create form title
+  const formTitle = document.createElement('h3');
+  formTitle.textContent = 'Create New Team';
+  formTitle.style.marginBottom = '1rem';
+
+  // Create team name input
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Team Name *';
+  nameLabel.htmlFor = 'team-name-input';
+  
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.id = 'team-name-input';
+  nameInput.name = 'name';
+  nameInput.placeholder = 'Enter team name';
+  nameInput.required = true;
+  nameInput.style.width = '100%';
+  nameInput.style.marginBottom = '1rem';
+
+  // Create description textarea
+  const descLabel = document.createElement('label');
+  descLabel.textContent = 'Description (optional)';
+  descLabel.htmlFor = 'team-desc-input';
+  
+  const descInput = document.createElement('textarea');
+  descInput.id = 'team-desc-input';
+  descInput.name = 'description';
+  descInput.placeholder = 'Enter team description';
+  descInput.rows = 3;
+  descInput.style.width = '100%';
+  descInput.style.marginBottom = '1rem';
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Create Team';
+  submitButton.className = 'btn-primary';
+
+  // Append elements to form
+  form.appendChild(formTitle);
+  form.appendChild(nameLabel);
+  form.appendChild(nameInput);
+  form.appendChild(descLabel);
+  form.appendChild(descInput);
+  form.appendChild(submitButton);
+
+  formContainer.appendChild(form);
+
+  // Insert form before the teams list
+  const teamsList = document.getElementById('teams-list');
+  teamsSection.insertBefore(formContainer, teamsList);
+
+  // Add form submit handler
+  form.addEventListener('submit', handleCreateTeam);
+
+  console.log('Team creation form initialized');
+}
+
+/**
+ * Handles team creation form submission
+ * @param {Event} event - The form submit event
+ */
+async function handleCreateTeam(event) {
+  // Prevent default form submission
+  event.preventDefault();
+
+  // Get form inputs
+  const nameInput = document.getElementById('team-name-input');
+  const descInput = document.getElementById('team-desc-input');
+  const submitButton = event.target.querySelector('button[type="submit"]');
+
+  // Get values and trim whitespace
+  const teamName = nameInput.value.trim();
+  const teamDescription = descInput.value.trim();
+
+  // Basic validation
+  if (!teamName) {
+    SG.showToast('Team name is required');
+    return;
+  }
+
+  if (teamName.length < 2) {
+    SG.showToast('Team name must be at least 2 characters');
+    return;
+  }
+
+  // Disable submit button to prevent double submission
+  submitButton.disabled = true;
+  submitButton.textContent = 'Creating...';
+
+  console.log('Creating team:', { name: teamName, description: teamDescription });
+
+  try {
+    // Call the API to create team
+    const response = await SG.apiFetch('/teams', 'POST', {
+      name: teamName,
+      description: teamDescription
+    });
+
+    // Check if creation was successful
+    if (response.success) {
+      console.log('Team created successfully:', response.team);
+      SG.showToast('Team created successfully!');
+
+      // Clear the form
+      nameInput.value = '';
+      descInput.value = '';
+
+      // Refresh the teams list to show the new team
+      await fetchAndRenderTeams();
+    } else {
+      throw new Error(response.message || 'Failed to create team');
+    }
+  } catch (error) {
+    console.error('Error creating team:', error);
+    SG.showToast('Failed to create team. Please try again.');
+  } finally {
+    // Re-enable submit button
+    submitButton.disabled = false;
+    submitButton.textContent = 'Create Team';
+  }
+}
+
+/**
+ * Handles joining a team when Join Team button is clicked
+ * @param {string} teamId - The ID of the team to join
+ * @param {string} teamName - The name of the team (for display)
+ */
+async function handleJoinTeam(teamId, teamName) {
+  if (!teamId) {
+    console.error('Team ID is required to join a team');
+    return;
+  }
+
+  console.log('Attempting to join team:', { teamId, teamName });
+
+  // Find the button that was clicked to disable it
+  const button = document.querySelector(`button[data-team-id="${teamId}"]`);
+  
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Joining...';
+  }
+
+  try {
+    // Call the API to join the team
+    const response = await SG.apiFetch(`/teams/${teamId}/join`, 'POST');
+
+    // Check if join was successful
+    if (response.success) {
+      console.log('Successfully joined team:', teamName);
+      SG.showToast(`Successfully joined ${teamName}!`);
+
+      // Refresh the teams list to show updated member count
+      await fetchAndRenderTeams();
+    } else {
+      // Handle specific error messages from backend
+      const errorMessage = response.message || 'Failed to join team';
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    console.error('Error joining team:', error);
+    
+    // Show user-friendly error message
+    const errorMessage = error.message.includes('Already a member')
+      ? 'You are already a member of this team'
+      : 'Failed to join team. Please try again.';
+    
+    SG.showToast(errorMessage);
+
+    // Re-enable button on error
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Join Team';
+    }
+  }
+}
+
+/**
  * Fetches teams from the backend and renders them on the dashboard
  * Handles loading state, error state, and empty state
  */
@@ -146,12 +374,15 @@ async function fetchAndRenderTeams() {
       return;
     }
 
+    // Get logged-in user ID for membership checking
+    const userId = getUserId();
+
     // Clear the container and render teams
     teamsList.innerHTML = '';
     
     // Render each team
     teams.forEach((team, index) => {
-      const teamCard = createTeamCard(team);
+      const teamCard = createTeamCard(team, userId);
       teamsList.appendChild(teamCard);
     });
 
@@ -167,9 +398,10 @@ async function fetchAndRenderTeams() {
 /**
  * Creates a team card element for displaying team information
  * @param {object} team - The team data object
+ * @param {string} userId - The logged-in user's ID for membership checking
  * @returns {HTMLElement} - The team card DOM element
  */
-function createTeamCard(team) {
+function createTeamCard(team, userId) {
   // Safely extract team properties with fallbacks
   const teamName = team.name || 'Unnamed Team';
   const teamDescription = team.description || 'No description available';
@@ -177,6 +409,10 @@ function createTeamCard(team) {
   const memberCount = team.members ? team.members.length : 0;
   const teamNeeds = team.needs || 0;
   const teamTags = team.tags && team.tags.length > 0 ? team.tags : [];
+
+  // Check if the logged-in user is already a member of this team
+  // This prevents duplicate join requests and improves UX by showing membership status
+  const isMember = userId && team.members && team.members.includes(userId);
 
   // Determine status class for styling (open/closed)
   const statusClass = teamStatus.toLowerCase().includes('open') || teamStatus.toLowerCase().includes('need') ? 'status-open' : 'status-closed';
@@ -237,6 +473,30 @@ function createTeamCard(team) {
   }
   
   footer.appendChild(memberInfo);
+
+  // Show either Join button or membership status based on user's membership
+  if (isMember) {
+    // User is already a member - show status label instead of join button
+    const memberBadge = document.createElement('span');
+    memberBadge.className = 'member-badge';
+    memberBadge.textContent = 'You are a member';
+    memberBadge.style.color = '#4caf50';
+    memberBadge.style.fontWeight = 'bold';
+    footer.appendChild(memberBadge);
+  } else {
+    // User is not a member - show Join Team button
+    const joinButton = document.createElement('button');
+    joinButton.className = 'btn-join-team';
+    joinButton.textContent = 'Join Team';
+    joinButton.setAttribute('data-team-id', team._id);
+    
+    // Add click handler for joining team
+    joinButton.addEventListener('click', function() {
+      handleJoinTeam(team._id, team.name);
+    });
+    
+    footer.appendChild(joinButton);
+  }
 
   // Assemble the card
   card.appendChild(header);
