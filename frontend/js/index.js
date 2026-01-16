@@ -24,6 +24,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fetch and render teams on the dashboard
   fetchAndRenderTeams();
 
+  // Fetch and render resources on the dashboard
+  fetchAndRenderResources();
+
+  // Set up resource creation form
+  setupDashboardAddResourceForm();
+
+  // Fetch and render weekly leaderboard
+  fetchAndRenderLeaderboard();
+
   // Set up logout button functionality
   // When clicked, clears authentication data and redirects to login page
   const logoutBtn = document.getElementById('logout-btn');
@@ -504,4 +513,441 @@ function createTeamCard(team, userId) {
   card.appendChild(footer);
 
   return card;
+}
+
+/**
+ * Fetches resources from the backend and renders them on the dashboard
+ * Shows featured resources as a preview with links to the full resources page
+ */
+async function fetchAndRenderResources() {
+  // Get the resources preview container
+  const resourcesPreview = document.getElementById('resources-preview');
+  
+  if (!resourcesPreview) {
+    console.error('Resources preview container not found in DOM');
+    return;
+  }
+
+  // Show loading state
+  resourcesPreview.innerHTML = '<p class="loading-msg">Loading resources...</p>';
+  console.log('Fetching resources from backend...');
+
+  try {
+    // Fetch resources from the backend API
+    const response = await SG.apiFetch('/resources', 'GET');
+    
+    // Check if the response is successful
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to fetch resources');
+    }
+
+    const resources = response.resources;
+    console.log(`Successfully fetched ${resources.length} resources from backend`);
+
+    // Handle empty state - no resources available
+    if (!resources || resources.length === 0) {
+      resourcesPreview.innerHTML = '<p class="empty-msg">No resources available yet. <a href="resources.html">Add one!</a></p>';
+      return;
+    }
+
+    // Clear the container and render featured resources (limit to 3 for dashboard preview)
+    resourcesPreview.innerHTML = '';
+    
+    // Show the first 3 resources as a preview
+    const featuredResources = resources.slice(0, 3);
+    
+    featuredResources.forEach(resource => {
+      const resourceItem = createResourcePreviewItem(resource);
+      resourcesPreview.appendChild(resourceItem);
+    });
+
+    // Add link to full resources page if there are more resources
+    if (resources.length > 3) {
+      const viewMoreLink = document.createElement('p');
+      viewMoreLink.className = 'view-more-link';
+      viewMoreLink.innerHTML = `<a href="resources.html">View all ${resources.length} resources →</a>`;
+      resourcesPreview.appendChild(viewMoreLink);
+    }
+
+    console.log('Resources rendered successfully on dashboard');
+
+  } catch (error) {
+    // Handle error state
+    console.error('Error fetching resources:', error);
+    resourcesPreview.innerHTML = '<p class="error-msg">Failed to load resources. Please try again later.</p>';
+  }
+}
+
+/**
+ * Creates a resource preview item for the dashboard
+ * Displays title, category, and optional link
+ * @param {object} resource - The resource data object
+ * @returns {HTMLElement} - The resource preview item element
+ */
+function createResourcePreviewItem(resource) {
+  // Safely extract resource properties with fallbacks
+  const resourceTitle = resource.title || 'Untitled Resource';
+  const resourceCategory = resource.category || 'Unknown';
+  const resourceLink = resource.link && resource.link !== '#' ? resource.link : null;
+
+  // Create the resource item container
+  const item = document.createElement('div');
+  item.className = 'resource-preview-item';
+  item.style.padding = '1rem';
+  item.style.borderBottom = '1px solid #eee';
+  item.style.display = 'flex';
+  item.style.justifyContent = 'space-between';
+  item.style.alignItems = 'center';
+
+  // Create left section with title and category
+  const leftSection = document.createElement('div');
+  
+  const title = document.createElement('h4');
+  title.className = 'resource-title';
+  title.textContent = escapeHtml(resourceTitle);
+  title.style.margin = '0 0 0.25rem 0';
+  
+  const category = document.createElement('span');
+  category.className = `resource-category-badge category-${resourceCategory}`;
+  category.textContent = capitalizeCategory(resourceCategory);
+  category.style.fontSize = '0.75rem';
+  category.style.display = 'inline-block';
+  category.style.padding = '0.25rem 0.5rem';
+  category.style.borderRadius = '0.25rem';
+  category.style.backgroundColor = getCategoryColor(resourceCategory);
+  category.style.color = '#fff';
+
+  leftSection.appendChild(title);
+  leftSection.appendChild(category);
+
+  // Create right section with action link
+  const rightSection = document.createElement('div');
+  
+  if (resourceLink) {
+    const link = document.createElement('a');
+    link.href = resourceLink;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Open';
+    link.className = 'resource-link-btn';
+    link.style.color = '#0066cc';
+    link.style.textDecoration = 'none';
+    link.style.fontSize = '0.875rem';
+    
+    rightSection.appendChild(link);
+  }
+
+  // Assemble the item
+  item.appendChild(leftSection);
+  item.appendChild(rightSection);
+
+  return item;
+}
+
+/**
+ * Gets the color for a category badge
+ * @param {string} category - The resource category
+ * @returns {string} - A hex color code
+ */
+function getCategoryColor(category) {
+  const colors = {
+    'notes': '#4a90e2',
+    'books': '#50c878',
+    'equipment': '#ff9500'
+  };
+  return colors[category] || '#999';
+}
+
+/**
+ * Capitalizes the first letter of a category name
+ * @param {string} category - The category (notes, books, equipment)
+ * @returns {string} - Capitalized category name
+ */
+function capitalizeCategory(category) {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+}
+
+/**
+ * Sets up the dashboard's "Add Resource" form and its submit handler
+ * Allows users to quickly add resources from the dashboard
+ */
+function setupDashboardAddResourceForm() {
+  const form = document.getElementById('dashboard-add-resource-form');
+  
+  if (!form) {
+    console.error('Dashboard add resource form not found in DOM');
+    return;
+  }
+
+  form.addEventListener('submit', handleDashboardAddResource);
+  console.log('Dashboard add resource form initialized');
+}
+
+/**
+ * Handles form submission for adding a new resource from the dashboard
+ * @param {Event} event - The form submit event
+ */
+async function handleDashboardAddResource(event) {
+  // Prevent default form submission
+  event.preventDefault();
+
+  // Get form inputs
+  const titleInput = document.getElementById('dashboard-resource-title');
+  const categorySelect = document.getElementById('dashboard-resource-category');
+  const linkInput = document.getElementById('dashboard-resource-link');
+  const submitButton = event.target.querySelector('button[type="submit"]');
+
+  // Get values and trim whitespace
+  const title = titleInput.value.trim();
+  const category = categorySelect.value.trim().toLowerCase();
+ let link = linkInput.value.trim();
+
+// Remove accidental "Link:" prefix if present
+if (link.toLowerCase().startsWith('link:')) {
+  link = link.replace(/^link:\s*/i, '');
+}
+
+
+  // Basic validation
+  if (!title) {
+    SG.showToast('Resource title is required');
+    return;
+  }
+
+  if (!category) {
+    SG.showToast('Please select a category');
+    return;
+  }
+
+  if (title.length < 2) {
+    SG.showToast('Title must be at least 2 characters');
+    return;
+  }
+
+  // Validate category is one of the allowed values
+  const validCategories = ['notes', 'books', 'equipment'];
+  if (!validCategories.includes(category)) {
+    SG.showToast('Invalid category selected');
+    return;
+  }
+
+  // Disable submit button to prevent double submission
+  submitButton.disabled = true;
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Adding...';
+
+  console.log('Adding resource from dashboard:', { title, category, link });
+
+  try {
+    // Prepare resource data
+    const resourceData = {
+      title: title,
+      category: category
+    };
+
+    // Only include link if provided
+    if (link) {
+      resourceData.link = link;
+    }
+
+    // Call the API to create resource
+    const response = await SG.apiFetch('/resources', 'POST', resourceData);
+
+    // Check if creation was successful
+    if (response.success) {
+      console.log('Resource created successfully from dashboard:', response.resource);
+      SG.showToast('Resource added successfully!');
+
+      // Clear the form
+      titleInput.value = '';
+      categorySelect.value = '';
+      linkInput.value = '';
+
+      // Refresh the resource list to show the new resource
+      await fetchAndRenderResources();
+    } else {
+      // Handle backend error response
+      const errorMessage = response.message || 'Failed to add resource';
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    console.error('Error adding resource from dashboard:', error);
+    
+    // Show user-friendly error message
+    const displayMessage = error.message.includes('validation')
+      ? 'Please check your input and try again'
+      : 'Failed to add resource. Please try again.';
+    
+    SG.showToast(displayMessage);
+  } finally {
+    // Re-enable submit button
+    submitButton.disabled = false;
+    submitButton.textContent = originalText;
+  }
+}
+
+/**
+ * Fetches weekly leaderboard data from the backend and renders it on the dashboard
+ * Highlights the logged-in user's position in the leaderboard
+ */
+async function fetchAndRenderLeaderboard() {
+  // Get the leaderboard list container
+  const leaderboardList = document.getElementById('leaderboard-list');
+  
+  if (!leaderboardList) {
+    console.error('Leaderboard list container not found in DOM');
+    return;
+  }
+
+  // Show loading state
+  leaderboardList.innerHTML = '<p class="loading-msg">Loading leaderboard...</p>';
+  console.log('Fetching leaderboard from backend...');
+
+  try {
+    // Fetch leaderboard data from the backend API
+    const response = await SG.apiFetch('/leaderboard/weekly', 'GET');
+    
+    // Check if the response is successful
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to fetch leaderboard');
+    }
+
+    const leaderboard = response.leaderboard || [];
+    console.log(`Successfully fetched ${leaderboard.length} users from leaderboard`);
+
+    // Handle empty state - no users in leaderboard
+    if (leaderboard.length === 0) {
+      leaderboardList.innerHTML = '<p class="empty-msg">No leaderboard data available yet.</p>';
+      return;
+    }
+
+    // Get logged-in user ID to highlight them in the leaderboard
+    const currentUserId = getUserId();
+
+    // Clear the container and render leaderboard
+    leaderboardList.innerHTML = '';
+    
+    // Create leaderboard table/list
+    const leaderboardTable = document.createElement('div');
+    leaderboardTable.className = 'leaderboard-table';
+    leaderboardTable.style.display = 'flex';
+    leaderboardTable.style.flexDirection = 'column';
+    leaderboardTable.style.gap = '0.5rem';
+
+    // Render each user in the leaderboard
+    leaderboard.forEach((user, index) => {
+      const rank = index + 1;
+      const isCurrentUser = currentUserId && user._id === currentUserId;
+      const leaderboardRow = createLeaderboardRow(user, rank, isCurrentUser);
+      leaderboardTable.appendChild(leaderboardRow);
+    });
+
+    leaderboardList.appendChild(leaderboardTable);
+    console.log('Leaderboard rendered successfully on dashboard');
+
+  } catch (error) {
+    // Handle error state
+    console.error('Error fetching leaderboard:', error);
+    leaderboardList.innerHTML = '<p class="error-msg">Failed to load leaderboard. Please try again later.</p>';
+  }
+}
+
+/**
+ * Creates a leaderboard row element for a single user
+ * @param {object} user - The user data object
+ * @param {number} rank - The user's rank in the leaderboard
+ * @param {boolean} isCurrentUser - Whether this is the logged-in user
+ * @returns {HTMLElement} - The leaderboard row element
+ */
+function createLeaderboardRow(user, rank, isCurrentUser) {
+  // Safely extract user properties with fallbacks
+  const userName = user.name || 'Anonymous';
+  const userXP = user.xp !== undefined ? user.xp : 0;
+  const userLevel = user.level !== undefined ? user.level : 1;
+
+  // Create the row container
+  const row = document.createElement('div');
+  row.className = 'leaderboard-row';
+  row.style.display = 'flex';
+  row.style.alignItems = 'center';
+  row.style.justifyContent = 'space-between';
+  row.style.padding = '0.75rem 1rem';
+  row.style.borderRadius = '0.25rem';
+  row.style.transition = 'background-color 0.2s';
+
+  // Highlight the current user with a different background color
+  if (isCurrentUser) {
+    row.style.backgroundColor = '#fff3cd';
+    row.style.border = '2px solid #ffc107';
+    row.style.fontWeight = 'bold';
+  } else {
+    row.style.backgroundColor = '#f9f9f9';
+    row.style.border = '1px solid #e0e0e0';
+  }
+
+  // Create left section with rank and name
+  const leftSection = document.createElement('div');
+  leftSection.style.display = 'flex';
+  leftSection.style.alignItems = 'center';
+  leftSection.style.gap = '1rem';
+
+  // Rank badge
+  const rankBadge = document.createElement('span');
+  rankBadge.className = 'leaderboard-rank';
+  rankBadge.textContent = `#${rank}`;
+  rankBadge.style.fontSize = '1.1rem';
+  rankBadge.style.fontWeight = 'bold';
+  rankBadge.style.minWidth = '2.5rem';
+  rankBadge.style.textAlign = 'center';
+  
+  // Special styling for top 3
+  if (rank === 1) {
+    rankBadge.style.color = '#FFD700'; // Gold
+  } else if (rank === 2) {
+    rankBadge.style.color = '#C0C0C0'; // Silver
+  } else if (rank === 3) {
+    rankBadge.style.color = '#CD7F32'; // Bronze
+  } else {
+    rankBadge.style.color = '#666';
+  }
+
+  // User name
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'leaderboard-name';
+  nameSpan.textContent = escapeHtml(userName);
+  
+  if (isCurrentUser) {
+    nameSpan.textContent += ' (You)';
+  }
+
+  leftSection.appendChild(rankBadge);
+  leftSection.appendChild(nameSpan);
+
+  // Create right section with level and XP
+  const rightSection = document.createElement('div');
+  rightSection.style.display = 'flex';
+  rightSection.style.alignItems = 'center';
+  rightSection.style.gap = '1.5rem';
+  rightSection.style.fontSize = '0.9rem';
+
+  // Level
+  const levelSpan = document.createElement('span');
+  levelSpan.className = 'leaderboard-level';
+  levelSpan.innerHTML = `<strong>Lvl:</strong> ${userLevel}`;
+  levelSpan.style.color = '#555';
+
+  // XP
+  const xpSpan = document.createElement('span');
+  xpSpan.className = 'leaderboard-xp';
+  xpSpan.innerHTML = `<strong>XP:</strong> ${userXP}`;
+  xpSpan.style.color = '#555';
+
+  rightSection.appendChild(levelSpan);
+  rightSection.appendChild(xpSpan);
+
+  // Assemble the row
+  row.appendChild(leftSection);
+  row.appendChild(rightSection);
+
+  return row;
 }
