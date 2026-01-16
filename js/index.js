@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // User IS logged in - allow the dashboard to load normally
-  console.log('Dashboard access granted - user is authenticated');
 
   // Load and render user information on the dashboard
   renderUserInfo();
@@ -108,8 +107,6 @@ function renderUserInfo() {
 
   // Render the user info into the XP card
   xpCard.innerHTML = userInfoHTML;
-
-  console.log('User info rendered successfully:', { userName, userLevel, userXP });
 }
 
 /**
@@ -224,8 +221,6 @@ function setupTeamCreationForm() {
 
   // Add form submit handler
   form.addEventListener('submit', handleCreateTeam);
-
-  console.log('Team creation form initialized');
 }
 
 /**
@@ -260,8 +255,6 @@ async function handleCreateTeam(event) {
   submitButton.disabled = true;
   submitButton.textContent = 'Creating...';
 
-  console.log('Creating team:', { name: teamName, description: teamDescription });
-
   try {
     // Call the API to create team
     const response = await SG.apiFetch('/teams', 'POST', {
@@ -271,7 +264,6 @@ async function handleCreateTeam(event) {
 
     // Check if creation was successful
     if (response.success) {
-      console.log('Team created successfully:', response.team);
       SG.showToast('Team created successfully!');
 
       // Clear the form
@@ -304,8 +296,6 @@ async function handleJoinTeam(teamId, teamName) {
     return;
   }
 
-  console.log('Attempting to join team:', { teamId, teamName });
-
   // Find the button that was clicked to disable it
   const button = document.querySelector(`button[data-team-id="${teamId}"]`);
   
@@ -320,7 +310,6 @@ async function handleJoinTeam(teamId, teamName) {
 
     // Check if join was successful
     if (response.success) {
-      console.log('Successfully joined team:', teamName);
       SG.showToast(`Successfully joined ${teamName}!`);
 
       // Refresh the teams list to show updated member count
@@ -363,7 +352,6 @@ async function fetchAndRenderTeams() {
 
   // Show loading state
   teamsList.innerHTML = '<p class="loading-msg">Loading teams...</p>';
-  console.log('Fetching teams from backend...');
 
   try {
     // Fetch teams from the backend API
@@ -375,12 +363,20 @@ async function fetchAndRenderTeams() {
     }
 
     const teams = response.teams;
-    console.log(`Successfully fetched ${teams.length} teams`);
 
-    // Handle empty state - no teams available
+    // Handle empty state - hide section if no teams
     if (!teams || teams.length === 0) {
-      teamsList.innerHTML = '<p class="empty-msg">No teams available at the moment. Check back later!</p>';
+      const teamsSection = document.getElementById('recommended-teams');
+      if (teamsSection) {
+        teamsSection.style.display = 'none';
+      }
       return;
+    }
+
+    // Show section if it was hidden
+    const teamsSection = document.getElementById('recommended-teams');
+    if (teamsSection) {
+      teamsSection.style.display = 'block';
     }
 
     // Get logged-in user ID for membership checking
@@ -394,8 +390,6 @@ async function fetchAndRenderTeams() {
       const teamCard = createTeamCard(team, userId);
       teamsList.appendChild(teamCard);
     });
-
-    console.log('Teams rendered successfully');
 
   } catch (error) {
     // Handle error state
@@ -530,7 +524,6 @@ async function fetchAndRenderResources() {
 
   // Show loading state
   resourcesPreview.innerHTML = '<p class="loading-msg">Loading resources...</p>';
-  console.log('Fetching resources from backend...');
 
   try {
     // Fetch resources from the backend API
@@ -542,12 +535,20 @@ async function fetchAndRenderResources() {
     }
 
     const resources = response.resources;
-    console.log(`Successfully fetched ${resources.length} resources from backend`);
 
-    // Handle empty state - no resources available
+    // Handle empty state - hide section if no resources
     if (!resources || resources.length === 0) {
-      resourcesPreview.innerHTML = '<p class="empty-msg">No resources available yet. <a href="resources.html">Add one!</a></p>';
+      const resourcesSection = document.getElementById('featured-resources');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'none';
+      }
       return;
+    }
+
+    // Show section if it was hidden
+    const resourcesSection = document.getElementById('featured-resources');
+    if (resourcesSection) {
+      resourcesSection.style.display = 'block';
     }
 
     // Clear the container and render featured resources (limit to 3 for dashboard preview)
@@ -568,8 +569,6 @@ async function fetchAndRenderResources() {
       viewMoreLink.innerHTML = `<a href="resources.html">View all ${resources.length} resources →</a>`;
       resourcesPreview.appendChild(viewMoreLink);
     }
-
-    console.log('Resources rendered successfully on dashboard');
 
   } catch (error) {
     // Handle error state
@@ -680,7 +679,6 @@ function setupDashboardAddResourceForm() {
   }
 
   form.addEventListener('submit', handleDashboardAddResource);
-  console.log('Dashboard add resource form initialized');
 }
 
 /**
@@ -736,7 +734,6 @@ if (link.toLowerCase().startsWith('link:')) {
   const originalText = submitButton.textContent;
   submitButton.textContent = 'Adding...';
 
-  console.log('Adding resource from dashboard:', { title, category, link });
 
   try {
     // Prepare resource data
@@ -755,7 +752,6 @@ if (link.toLowerCase().startsWith('link:')) {
 
     // Check if creation was successful
     if (response.success) {
-      console.log('Resource created successfully from dashboard:', response.resource);
       SG.showToast('Resource added successfully!');
 
       // Clear the form
@@ -801,7 +797,6 @@ async function fetchAndRenderLeaderboard() {
 
   // Show loading state
   leaderboardList.innerHTML = '<p class="loading-msg">Loading leaderboard...</p>';
-  console.log('Fetching leaderboard from backend...');
 
   try {
     // Fetch leaderboard data from the backend API
@@ -813,12 +808,20 @@ async function fetchAndRenderLeaderboard() {
     }
 
     const leaderboard = response.leaderboard || [];
-    console.log(`Successfully fetched ${leaderboard.length} users from leaderboard`);
 
-    // Handle empty state - no users in leaderboard
+    // Handle empty state - hide section if no users
     if (leaderboard.length === 0) {
-      leaderboardList.innerHTML = '<p class="empty-msg">No leaderboard data available yet.</p>';
+      const leaderboardSection = document.getElementById('weekly-leaderboard');
+      if (leaderboardSection) {
+        leaderboardSection.style.display = 'none';
+      }
       return;
+    }
+
+    // Show section if it was hidden
+    const leaderboardSection = document.getElementById('weekly-leaderboard');
+    if (leaderboardSection) {
+      leaderboardSection.style.display = 'block';
     }
 
     // Get logged-in user ID to highlight them in the leaderboard
@@ -843,7 +846,6 @@ async function fetchAndRenderLeaderboard() {
     });
 
     leaderboardList.appendChild(leaderboardTable);
-    console.log('Leaderboard rendered successfully on dashboard');
 
   } catch (error) {
     // Handle error state
