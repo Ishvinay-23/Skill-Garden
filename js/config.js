@@ -67,5 +67,5 @@ SG.isLoggedIn = function () {
 
 SG.logout = function () {
   localStorage.clear();
-  window.location.href = "/frontend/login.html";
+  window.location.href = "/login.html";
 };

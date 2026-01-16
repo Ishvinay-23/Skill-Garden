@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!SG.isLoggedIn()) {
     // User is NOT logged in - redirect to the login page and stop execution
     console.warn('Unauthorized access attempt - redirecting to login page');
-    window.location.href = '/frontend/login.html';
+    window.location.href = 'login.html';
     return; // Stop any further code execution
   }
 

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
    
   // Auto-redirect already logged-in users to prevent showing the login form
   if (SG.isLoggedIn()) {
-    window.location.href = '/frontend/index.html';
+    window.location.href = 'index.html';
     return;
   }
 

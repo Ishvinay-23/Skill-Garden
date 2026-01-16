@@ -102,7 +102,7 @@ function init(){
 document.addEventListener('DOMContentLoaded', () => {
   // Route protection ensures only authenticated users can access the leaderboard
   if (!SG.isLoggedIn()) {
-    window.location.href = '/frontend/login.html';
+    window.location.href = 'login.html';
     return;
   }
   init();

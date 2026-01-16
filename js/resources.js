@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Check if user is logged in
   if (!SG.isLoggedIn()) {
     console.warn('Unauthorized access attempt - redirecting to login page');
-    window.location.href = '/frontend/login.html';
+    window.location.href = '/login.html';
     return;
   }
 
