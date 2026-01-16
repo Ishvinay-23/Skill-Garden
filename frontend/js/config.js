@@ -51,3 +51,21 @@ SG.showToast = function(msg, opts = {}){
 SG.config = {
   theme: 'green',
 };
+
+// Base API URL (change this when deploying)
+
+SG.API_BASE = "http://localhost:4000/api";
+
+// Auth helpers
+SG.getToken = function () {
+  return localStorage.getItem("token");
+};
+
+SG.isLoggedIn = function () {
+  return !!SG.getToken();
+};
+
+SG.logout = function () {
+  localStorage.clear();
+  window.location.href = "/frontend/login.html";
+};

@@ -99,4 +99,11 @@ function init(){
   refresh();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  // Route protection ensures only authenticated users can access the leaderboard
+  if (!SG.isLoggedIn()) {
+    window.location.href = '/frontend/login.html';
+    return;
+  }
+  init();
+});
