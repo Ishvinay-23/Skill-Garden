@@ -54,7 +54,8 @@ SG.config = {
 
 // Base API URL (change this when deploying)
 
-SG.API_BASE = "http://localhost:4000/api";
+SG.API_BASE = "https://skill-garden-backend-y93b.onrender.com/api";
+
 
 // Auth helpers
 SG.getToken = function () {
