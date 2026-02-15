@@ -1,7 +1,7 @@
 // controllers/authController.js
 // Handles register and login logic. Uses async/await and returns JSON responses for the frontend.
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/User');

@@ -3,7 +3,7 @@
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const { connectDB } = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Team = require('../models/Team');
